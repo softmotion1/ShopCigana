@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ShopCigana — Discord Shop</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root{--bg:#0b0c1a;--bg2:#10112b;--bg3:#15163a;--card:#161830;--card2:#1c1e40;--border:rgba(120,100,255,.18);--border2:rgba(120,100,255,.35);--blue:#4f8ef7;--purple:#7c5cfc;--violet:#9b6dff;--accent:#5865f2;--text:#e8eaf6;--muted:#8890b0;--success:#43b581;}
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html{scroll-behavior:smooth;}
+  body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;}
+  body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;background-image:radial-gradient(1px 1px at 15% 20%,rgba(150,130,255,.5) 0%,transparent 100%),radial-gradient(1px 1px at 40% 60%,rgba(80,140,255,.4) 0%,transparent 100%),radial-gradient(1px 1px at 70% 30%,rgba(180,150,255,.5) 0%,transparent 100%),radial-gradient(2px 2px at 55% 15%,rgba(120,100,255,.3) 0%,transparent 100%);}
+  nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:0 2.5rem;height:64px;background:rgba(11,12,26,.88);backdrop-filter:blur(18px);border-bottom:1px solid var(--border);}
+  .logo{font-family:'Syne',sans-serif;font-weight:800;font-size:22px;background:linear-gradient(90deg,var(--blue),var(--violet));-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:-.5px;}
+  .logo span{-webkit-text-fill-color:rgba(255,255,255,.4);}
+  .nav-links{display:flex;gap:2rem;align-items:center;}
+  .nav-links a{color:var(--muted);text-decoration:none;font-size:14px;transition:color .2s;}
+  .nav-links a:hover{color:var(--text);}
+  .nav-cart{display:flex;align-items:center;gap:8px;background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:7px 14px;cursor:pointer;font-size:14px;color:var(--text);transition:border-color .2s;}
+  .nav-cart:hover{border-color:var(--purple);}
+  .cart-count{background:var(--purple);color:#fff;font-size:11px;font-weight:600;width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;}
+  .hero{position:relative;z-index:1;text-align:center;padding:80px 2rem 50px;}
+  .hero-glow{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:600px;height:280px;background:radial-gradient(ellipse,rgba(124,92,252,.12) 0%,transparent 70%);pointer-events:none;}
+  .hero-tag{display:inline-flex;align-items:center;gap:8px;background:rgba(88,101,242,.15);border:1px solid rgba(88,101,242,.35);border-radius:99px;padding:5px 14px;font-size:12px;color:#a5aaff;margin-bottom:1.5rem;letter-spacing:.05em;text-transform:uppercase;}
+  .hero-tag::before{content:'';width:7px;height:7px;background:var(--accent);border-radius:50%;animation:pulse 2s infinite;}
+  @keyframes pulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.5;transform:scale(.8);}}
+  .hero h1{font-family:'Syne',sans-serif;font-size:clamp(2.2rem,5vw,4rem);font-weight:800;line-height:1.1;margin-bottom:1rem;letter-spacing:-1.5px;}
+  .hero h1 span{background:linear-gradient(135deg,var(--blue) 0%,var(--violet) 50%,#c084fc 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+  .hero p{color:var(--muted);font-size:16px;max-width:460px;margin:0 auto 1rem;line-height:1.7;}
+  .section{position:relative;z-index:1;max-width:1200px;margin:0 auto;padding:0 2rem 80px;}
+  .section-title{font-family:'Syne',sans-serif;font-size:24px;font-weight:700;margin-bottom:.25rem;letter-spacing:-.5px;}
+  .section-sub{color:var(--muted);font-size:13px;margin-bottom:1.25rem;}
+  .search-input{width:100%;background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:11px 16px;font-size:14px;color:var(--text);font-family:'DM Sans',sans-serif;outline:none;transition:border-color .2s;margin-bottom:1rem;}
+  .search-input:focus{border-color:var(--purple);}
+  .filters{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:1.25rem;}
+  .filter-btn{background:var(--card2);border:1px solid var(--border);border-radius:8px;padding:6px 13px;font-size:12px;color:var(--muted);cursor:pointer;transition:all .2s;font-family:'DM Sans',sans-serif;}
+  .filter-btn:hover{border-color:var(--border2);color:var(--text);}
+  .filter-btn.active{background:rgba(124,92,252,.2);border-color:var(--purple);color:#c4b5fd;}
+  .products-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:16px;}
+  .product-card{background:var(--card);border:1px solid var(--border);border-radius:14px;overflow:hidden;cursor:pointer;transition:transform .25s,border-color .25s,box-shadow .25s;animation:fadeUp .4s both;}
+  .product-card:hover{transform:translateY(-4px);border-color:var(--border2);box-shadow:0 12px 36px rgba(124,92,252,.15);}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(16px);}to{opacity:1;transform:translateY(0);}}
+  .product-img{height:130px;position:relative;overflow:hidden;background:var(--card2);display:flex;align-items:center;justify-content:center;font-size:40px;}
+  .product-img img{width:100%;height:100%;object-fit:cover;position:absolute;inset:0;}
+  .product-img::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,transparent 30%,var(--card) 100%);}
+  .badge{position:absolute;top:10px;right:10px;z-index:2;background:var(--purple);color:#fff;font-size:10px;font-weight:600;padding:3px 8px;border-radius:5px;text-transform:uppercase;letter-spacing:.04em;}
+  .badge.hot{background:#f04747;}
+  .badge.new{background:#1D9E75;}
+  .product-body{padding:1rem 1.1rem 1.1rem;}
+  .product-cat{font-size:10px;color:var(--violet);text-transform:uppercase;letter-spacing:.1em;font-weight:500;margin-bottom:5px;}
+  .product-name{font-family:'Syne',sans-serif;font-size:13.5px;font-weight:700;margin-bottom:5px;letter-spacing:-.2px;line-height:1.35;}
+  .product-stock{font-size:11px;color:var(--muted);margin-bottom:.75rem;}
+  .product-footer{display:flex;align-items:center;justify-content:space-between;gap:8px;}
+  .product-price{font-family:'Syne',sans-serif;font-size:17px;font-weight:700;color:#fff;white-space:nowrap;}
+  .btn-add{background:linear-gradient(135deg,var(--blue),var(--purple));border:none;color:#fff;font-size:12px;font-weight:500;padding:7px 12px;border-radius:7px;cursor:pointer;font-family:'DM Sans',sans-serif;transition:opacity .2s,transform .15s;white-space:nowrap;}
+  .btn-add:hover{opacity:.88;transform:scale(1.03);}
+  .btn-add:active{transform:scale(.97);}
+  .no-results{grid-column:1/-1;text-align:center;color:var(--muted);padding:3rem;font-size:14px;}
+  .cart-overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:200;opacity:0;pointer-events:none;transition:opacity .25s;backdrop-filter:blur(4px);}
+  .cart-overlay.open{opacity:1;pointer-events:all;}
+  .cart-sidebar{position:fixed;top:0;right:0;width:360px;height:100vh;background:var(--bg2);border-left:1px solid var(--border);z-index:201;transform:translateX(100%);transition:transform .3s cubic-bezier(.4,0,.2,1);display:flex;flex-direction:column;}
+  .cart-sidebar.open{transform:translateX(0);}
+  .cart-head{padding:1.25rem 1.5rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+  .cart-head h3{font-family:'Syne',sans-serif;font-size:18px;font-weight:700;}
+  .btn-close{background:var(--card2);border:1px solid var(--border);color:var(--muted);width:32px;height:32px;border-radius:8px;cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center;transition:color .2s;}
+  .btn-close:hover{color:var(--text);}
+  .cart-items{flex:1;overflow-y:auto;padding:1rem 1.5rem;}
+  .cart-empty{text-align:center;color:var(--muted);font-size:14px;padding:3rem 0;}
+  .cart-item{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--border);}
+  .cart-item-img{width:40px;height:40px;border-radius:8px;object-fit:cover;flex-shrink:0;background:var(--card2);}
+  .cart-item-info{flex:1;min-width:0;}
+  .cart-item-name{font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .cart-item-price{font-size:12px;color:var(--violet);margin-top:2px;}
+  .btn-remove{background:none;border:none;color:var(--muted);cursor:pointer;font-size:18px;padding:4px;transition:color .2s;flex-shrink:0;}
+  .btn-remove:hover{color:#f04747;}
+  .cart-footer{padding:1.25rem 1.5rem;border-top:1px solid var(--border);}
+  .cart-total{display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;}
+  .cart-total span{color:var(--muted);font-size:14px;}
+  .cart-total strong{font-family:'Syne',sans-serif;font-size:22px;font-weight:700;}
+  .btn-checkout{width:100%;background:linear-gradient(135deg,var(--blue),var(--purple));border:none;color:#fff;font-family:'Syne',sans-serif;font-size:15px;font-weight:700;padding:14px;border-radius:10px;cursor:pointer;transition:opacity .2s;letter-spacing:.02em;}
+  .btn-checkout:hover{opacity:.9;}
+  .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.78);z-index:300;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .25s;backdrop-filter:blur(6px);padding:1rem;}
+  .modal-overlay.open{opacity:1;pointer-events:all;}
+  .modal{background:var(--bg2);border:1px solid var(--border2);border-radius:20px;width:100%;max-width:480px;max-height:90vh;overflow-y:auto;transform:scale(.95) translateY(20px);transition:transform .3s cubic-bezier(.4,0,.2,1);padding:2rem;position:relative;}
+  .modal-overlay.open .modal{transform:scale(1) translateY(0);}
+  .modal-close{position:absolute;top:1.25rem;right:1.25rem;background:var(--card2);border:1px solid var(--border);color:var(--muted);width:32px;height:32px;border-radius:8px;cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center;transition:color .2s;}
+  .modal-close:hover{color:var(--text);}
+  .modal h2{font-family:'Syne',sans-serif;font-size:22px;font-weight:800;margin-bottom:.25rem;letter-spacing:-.5px;}
+  .modal-sub{color:var(--muted);font-size:13px;margin-bottom:1.5rem;}
+  .steps{display:flex;margin-bottom:2rem;}
+  .step{flex:1;text-align:center;position:relative;font-size:12px;color:var(--muted);}
+  .step::after{content:'';position:absolute;top:14px;left:50%;right:-50%;height:1px;background:var(--border);}
+  .step:last-child::after{display:none;}
+  .step-dot{width:28px;height:28px;border-radius:50%;background:var(--card2);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;margin:0 auto 6px;position:relative;z-index:1;transition:background .3s,border-color .3s;}
+  .step.active .step-dot{background:var(--purple);border-color:var(--purple);color:#fff;}
+  .step.done .step-dot{background:var(--success);border-color:var(--success);color:#fff;}
+  .step.active{color:var(--text);}
+  .step.done{color:var(--success);}
+  .checkout-step{display:none;}
+  .checkout-step.active{display:block;}
+  .form-label{font-size:13px;color:var(--muted);margin-bottom:6px;display:block;}
+  .form-input{width:100%;background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:11px 14px;font-size:14px;color:var(--text);font-family:'DM Sans',sans-serif;outline:none;transition:border-color .2s;margin-bottom:1rem;}
+  .form-input:focus{border-color:var(--purple);}
+  .pay-methods{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:1.25rem;}
+  .pay-card{background:var(--card2);border:1.5px solid var(--border);border-radius:12px;padding:14px 12px;cursor:pointer;text-align:center;transition:border-color .2s,background .2s;}
+  .pay-card:hover{border-color:var(--border2);}
+  .pay-card.selected{border-color:var(--purple);background:rgba(124,92,252,.1);}
+  .pay-icon{font-size:26px;margin-bottom:6px;}
+  .pay-name{font-size:13px;font-weight:500;color:var(--text);}
+  .pay-desc{font-size:11px;color:var(--muted);margin-top:2px;}
+  .pay-details{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:1rem;margin-bottom:1.25rem;font-size:13px;color:var(--muted);line-height:1.7;display:none;}
+  .pay-details.show{display:block;}
+  .pay-details strong{color:var(--text);}
+  .order-summary{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:1rem 1.25rem;margin-bottom:1.25rem;}
+  .order-summary h4{font-size:12px;color:var(--muted);margin-bottom:10px;text-transform:uppercase;letter-spacing:.06em;}
+  .summary-item{display:flex;justify-content:space-between;font-size:13px;padding:4px 0;}
+  .summary-item.total{border-top:1px solid var(--border);margin-top:8px;padding-top:12px;font-family:'Syne',sans-serif;font-weight:700;font-size:17px;color:var(--text);}
+  .modal-actions{display:flex;gap:10px;margin-top:1.5rem;}
+  .btn-back{background:var(--card2);border:1px solid var(--border);color:var(--muted);padding:12px 20px;border-radius:10px;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:14px;transition:color .2s;}
+  .btn-back:hover{color:var(--text);}
+  .btn-next{flex:1;background:linear-gradient(135deg,var(--blue),var(--purple));border:none;color:#fff;font-family:'Syne',sans-serif;font-size:15px;font-weight:700;padding:13px;border-radius:10px;cursor:pointer;transition:opacity .2s;}
+  .btn-next:hover{opacity:.9;}
+  .success-screen{text-align:center;padding:1rem 0;}
+  .success-icon{width:72px;height:72px;background:rgba(67,181,129,.15);border:2px solid var(--success);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:32px;margin:0 auto 1.25rem;animation:popIn .4s cubic-bezier(.34,1.56,.64,1) both;}
+  @keyframes popIn{from{transform:scale(0);opacity:0;}to{transform:scale(1);opacity:1;}}
+  .success-screen h2{font-family:'Syne',sans-serif;font-size:24px;font-weight:800;margin-bottom:.5rem;}
+  .success-screen p{color:var(--muted);font-size:14px;line-height:1.7;margin-bottom:1.5rem;}
+  .discord-box{background:rgba(88,101,242,.12);border:1px solid rgba(88,101,242,.35);border-radius:14px;padding:1.25rem 1.5rem;margin-bottom:1.5rem;text-align:left;}
+  .discord-box h4{font-family:'Syne',sans-serif;font-size:15px;font-weight:700;color:#a5aaff;margin-bottom:.75rem;display:flex;align-items:center;gap:8px;}
+  .ticket-steps{display:flex;flex-direction:column;gap:10px;}
+  .ticket-step{display:flex;align-items:flex-start;gap:10px;font-size:13px;color:var(--muted);}
+  .ticket-step-num{min-width:22px;height:22px;background:var(--accent);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;margin-top:1px;flex-shrink:0;}
+  .order-id{font-size:12px;color:var(--muted);margin-bottom:1.5rem;display:flex;align-items:center;justify-content:center;gap:6px;}
+  .order-id code{background:var(--card2);border:1px solid var(--border);border-radius:6px;padding:3px 10px;color:var(--violet);font-size:13px;letter-spacing:.05em;}
+  .btn-discord{width:100%;background:var(--accent);border:none;color:#fff;font-family:'Syne',sans-serif;font-size:15px;font-weight:700;padding:14px;border-radius:10px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;transition:opacity .2s;text-decoration:none;}
+  .btn-discord:hover{opacity:.9;}
+  .toast{position:fixed;bottom:2rem;left:50%;transform:translateX(-50%) translateY(20px);background:var(--card2);border:1px solid var(--border2);border-radius:12px;padding:12px 20px;font-size:14px;color:var(--text);z-index:500;display:flex;align-items:center;gap:10px;opacity:0;transition:opacity .25s,transform .25s;box-shadow:0 8px 32px rgba(0,0,0,.4);pointer-events:none;white-space:nowrap;}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+  .toast-dot{width:8px;height:8px;background:var(--success);border-radius:50%;flex-shrink:0;}
+  footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:2rem;text-align:center;color:var(--muted);font-size:13px;}
+  footer a{color:var(--violet);text-decoration:none;}
+  @media(max-width:600px){nav{padding:0 1rem;}.nav-links{display:none;}.hero{padding:50px 1rem 40px;}.section{padding:0 1rem 60px;}.modal{padding:1.5rem;}.cart-sidebar{width:100vw;}}
+</style>
+</head>
+<body>
+<nav>
+  <div class="logo">Shop<span>Cigana</span></div>
+  <div class="nav-links"><a href="#">Produtos</a><a href="#">Sobre</a><a href="#">Suporte</a></div>
+  <button class="nav-cart" onclick="openCart()">🛒 Carrinho <div class="cart-count" id="cartCount">0</div></button>
+</nav>
+<div class="hero">
+  <div class="hero-glow"></div>
+  <div class="hero-tag">Discord Store ativo</div>
+  <h1>Os melhores<br><span>produtos digitais</span><br>num só lugar</h1>
+  <p>Contas, spoofers, robux, skins e muito mais. Paga com Crypto, PayPal, MBWay ou Referência MB.</p>
+</div>
+<div class="section">
+  <div class="section-title">Todos os Produtos</div>
+  <div class="section-sub" id="subText">A carregar produtos...</div>
+  <div class="filters" id="filters"></div>
+  <input type="text" id="searchInput" class="search-input" placeholder="🔍  Pesquisar produto...">
+  <div class="products-grid" id="productsGrid"></div>
+</div>
+
+<div class="cart-overlay" id="cartOverlay" onclick="closeCart()"></div>
+<div class="cart-sidebar" id="cartSidebar">
+  <div class="cart-head"><h3>🛒 Carrinho</h3><button class="btn-close" onclick="closeCart()">×</button></div>
+  <div class="cart-items" id="cartItems"><div class="cart-empty">O teu carrinho está vazio.</div></div>
+  <div class="cart-footer">
+    <div class="cart-total"><span>Total</span><strong id="cartTotal">€0.00</strong></div>
+    <button class="btn-checkout" onclick="openCheckout()">Finalizar compra →</button>
+  </div>
+</div>
+
+<div class="modal-overlay" id="checkoutModal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeCheckout()">×</button>
+    <div class="steps">
+      <div class="step active" id="si1"><div class="step-dot">1</div>Dados</div>
+      <div class="step" id="si2"><div class="step-dot">2</div>Pagamento</div>
+      <div class="step" id="si3"><div class="step-dot">3</div>Confirmação</div>
+    </div>
+    <div class="checkout-step active" id="step1">
+      <h2>Os teus dados</h2>
+      <div class="modal-sub">Preenche os campos abaixo para continuar</div>
+      <label class="form-label">Nome completo</label>
+      <input class="form-input" id="iName" type="text" placeholder="João Silva">
+      <label class="form-label">Email</label>
+      <input class="form-input" id="iEmail" type="email" placeholder="joao@email.com">
+      <label class="form-label">Username Discord</label>
+      <input class="form-input" id="iDiscord" type="text" placeholder="joaosilva ou joao#0001">
+      <div class="modal-actions"><button class="btn-next" onclick="goStep(2)">Continuar →</button></div>
+    </div>
+    <div class="checkout-step" id="step2">
+      <h2>Método de pagamento</h2>
+      <div class="modal-sub">Escolhe como queres pagar</div>
+      <div class="pay-methods">
+        <div class="pay-card" onclick="selectPay('crypto')" id="pay-crypto"><div class="pay-icon">₿</div><div class="pay-name">Crypto</div><div class="pay-desc">BTC · ETH · USDT</div></div>
+        <div class="pay-card" onclick="selectPay('paypal')" id="pay-paypal"><div class="pay-icon">🅿</div><div class="pay-name">PayPal</div><div class="pay-desc">Amigos &amp; Família</div></div>
+        <div class="pay-card" onclick="selectPay('mbway')" id="pay-mbway"><div class="pay-icon">📱</div><div class="pay-name">MBWay</div><div class="pay-desc">Transferência imediata</div></div>
+        <div class="pay-card" onclick="selectPay('mb')" id="pay-mb"><div class="pay-icon">🏧</div><div class="pay-name">Código MB</div><div class="pay-desc">Referência ATM</div></div>
+      </div>
+      <div class="pay-details" id="details-crypto"><strong>Pagamento em Criptomoeda</strong><br>Aceitamos <strong>Bitcoin (BTC)</strong>, <strong>Ethereum (ETH)</strong> e <strong>USDT</strong>.<br>Receberás a carteira via ticket no Discord após confirmação.</div>
+      <div class="pay-details" id="details-paypal"><strong>Pagamento via PayPal</strong><br>Usa apenas <strong>"Amigos e Família"</strong> para evitar taxas.<br>O email PayPal é enviado via ticket no Discord.</div>
+      <div class="pay-details" id="details-mbway"><strong>Pagamento via MBWay</strong><br>Transferência instantânea pelo app MB WAY.<br>Número de telemóvel enviado via ticket no Discord.</div>
+      <div class="pay-details" id="details-mb"><strong>Referência Multibanco / Código de Levantamento</strong><br>Geraremos uma referência ATM para o teu pedido.<br>Dados de pagamento enviados via ticket no Discord.</div>
+      <div class="order-summary" id="modalSummary"></div>
+      <div class="modal-actions"><button class="btn-back" onclick="goStep(1)">← Voltar</button><button class="btn-next" onclick="goStep(3)">Confirmar pedido →</button></div>
+    </div>
+    <div class="checkout-step" id="step3">
+      <div class="success-screen">
+        <div class="success-icon">✓</div>
+        <h2>Pedido recebido!</h2>
+        <p>O teu pedido foi registado com sucesso. Para concluíres o pagamento abre um <strong>ticket no nosso servidor Discord</strong>.</p>
+        <div class="order-id">Nº do pedido: <code id="orderCode">—</code></div>
+        <div class="discord-box">
+          <h4>💬 Como pagar via Discord</h4>
+          <div class="ticket-steps">
+            <div class="ticket-step"><div class="ticket-step-num">1</div><span>Entra no servidor Discord clicando no botão abaixo</span></div>
+            <div class="ticket-step"><div class="ticket-step-num">2</div><span>Vai ao canal <strong style="color:var(--text)">#abrir-ticket</strong> e clica em "Novo Ticket"</span></div>
+            <div class="ticket-step"><div class="ticket-step-num">3</div><span>Indica o teu <strong style="color:var(--text)">nº de pedido</strong> e método de pagamento</span></div>
+            <div class="ticket-step"><div class="ticket-step-num">4</div><span>A nossa equipa enviará os dados de pagamento e confirmará a entrega</span></div>
+          </div>
+        </div>
+        <a href="#" class="btn-discord" onclick="return false;">💬 &nbsp;Abrir Ticket no Discord</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"><div class="toast-dot"></div><span id="toastMsg"></span></div>
+<footer>ShopCigana © 2025 · Discord Store · <a href="#">Termos</a> · <a href="#">Suporte</a></footer>
+
+<script>
+const I='https://user-generated-content.komerza.com/';
+const PRODS=[
+  // DISCORD
+  {id:1,n:'Discord Email Verified',c:'Discord',p:0.13,s:599,img:I+'520c112d-9cdf-4137-ba4c-853d18de4c24.png'},
+  {id:2,n:'Discord Email + Phone Verified',c:'Discord',p:0.18,s:1645,img:I+'c1656fe7-5179-4cb6-85c5-d08e0bcfbf66.png'},
+  {id:3,n:'Discord 3+ Months Aged',c:'Discord',p:0.33,s:1754,img:I+'709453dd-c6fd-4a34-ade9-eda85e931805.png'},
+  {id:4,n:'Discord 2023 Account',c:'Discord',p:0.66,s:546,img:I+'91b61032-de9d-465c-8c82-b9f64e854d81.png'},
+  {id:5,n:'Discord 2020 Account',c:'Discord',p:2.2,s:257,img:I+'57ff8641-834e-4908-b71e-f2c00acb7a44.png'},
+  {id:6,n:'Discord 2019 Account',c:'Discord',p:4.4,s:38,img:I+'ccb73576-6c74-4fa7-8bd9-d381ca5217a0.png'},
+  {id:7,n:'Discord 2017 Account',c:'Discord',p:9.9,s:25,img:I+'f14056b8-c638-4c51-a940-a933d3610008.png',b:'Raro'},
+  {id:8,n:'Discord 2016 Account',c:'Discord',p:18.7,s:3,img:I+'a8dce53a-b886-4240-947f-c31a35b14e0c.png',b:'Raro'},
+  {id:9,n:'Discord 3M Nitro + 2 Boosts + PV',c:'Discord',p:6.16,s:62,img:I+'7777fd3d-63c5-46f5-9a50-5870fb2836d1.png'},
+  {id:10,n:'Discord 14x 1 Month Boosts',c:'Discord',p:8.14,s:23,img:I+'e92a1532-1f87-42d4-9396-455b03721e14.png'},
+  {id:11,n:'Discord Generator [LIFETIME]',c:'Discord',p:66.0,s:48,img:I+'53b0e227-2cfa-40a4-9d82-7b40df2b9075.png',b:'Hot',bt:'hot'},
+  // FORTNITE
+  {id:20,n:'Fortnite 3-10 Skins [Ranked]',c:'Fortnite',p:0.99,s:32,img:I+'3cbe7f2c-c4b0-4521-97f8-d66b4b7ee5ad.png'},
+  {id:21,n:'Fortnite 10-20 Skins [Ranked]',c:'Fortnite',p:2.75,s:141,img:I+'4fc9fffa-4bb4-4cce-959c-aea3824262d3.png'},
+  {id:22,n:'Fortnite 20-50 Skins [Ranked]',c:'Fortnite',p:4.95,s:211,img:I+'041717dd-aaab-49ef-9435-c349d63cd63f.png'},
+  {id:23,n:'Fortnite 50-100 Skins [OG]',c:'Fortnite',p:8.8,s:130,img:I+'905e3f61-42f3-4fe6-a909-7d3ff9815b26.png'},
+  {id:24,n:'Fortnite 100-150 Skins [OG]',c:'Fortnite',p:14.3,s:77,img:I+'bdb9f411-2253-4a3e-882b-6b618bf13624.png'},
+  {id:25,n:'Fortnite 150-250 Skins [OG]',c:'Fortnite',p:19.25,s:55,img:I+'3033a88d-6253-4d42-8332-a8505c2c6b0f.png'},
+  {id:26,n:'Fortnite 100-250 Tryhard Skins',c:'Fortnite',p:25.85,s:19,img:I+'ee0d7e2b-663f-46b0-9ce6-08686143ff51.png'},
+  {id:27,n:'Fortnite Leviathan Axe + 100-200',c:'Fortnite',p:30.25,s:28,img:I+'b4817ae6-f784-45b0-8af6-b042765b0d8f.png',b:'Hot',bt:'hot'},
+  {id:28,n:'Fortnite 250-400 Skins [OG]',c:'Fortnite',p:31.9,s:32,img:I+'39ddbb68-dd09-441c-b191-aa713b90decd.png'},
+  {id:29,n:'Fortnite OG STW + 100-200 Skins',c:'Fortnite',p:34.1,s:34,img:I+'bd11182a-005d-4325-86ec-2f3fa6f76744.png'},
+  {id:30,n:'Fortnite 350 Lv + 14 Events',c:'Fortnite',p:38.5,s:10,img:I+'47ca45f2-cf10-4802-97aa-8e27f4b599d7.png'},
+  {id:31,n:'Fortnite Minty Axe + 100-250',c:'Fortnite',p:39.6,s:20,img:I+'3aceb99d-5012-43eb-9c1d-a0c9993f9f1c.png'},
+  {id:32,n:'Fortnite 400-600 Skins [OG]',c:'Fortnite',p:55.0,s:6,img:I+'8fe6ac4f-635f-4931-abe7-6e4204a0f983.png',b:'Raro'},
+  {id:33,n:'Fortnite Travis Scott + 100-250',c:'Fortnite',p:88.0,s:33,img:I+'bac75f61-234b-446a-9688-3a5c1fcaac64.png',b:'Raro'},
+  {id:34,n:'Fortnite Black Knight + 50-250',c:'Fortnite',p:121.0,s:25,img:I+'fc9145c6-746f-46eb-bfbb-66f67eb13868.png',b:'Raro'},
+  {id:35,n:'Fortnite Accounts Gen',c:'Fortnite',p:66.0,s:7,img:I+'335e7267-ec5a-41b5-8555-57d62717e1a9.png'},
+  {id:36,n:'Fortnite V-Bucks 800-1200',c:'Fortnite',p:5.5,s:22,img:I+'41b55f51-8b7a-4518-bbf2-63d0b1f7ee16.png'},
+  {id:37,n:'Fortnite V-Bucks 1500-2800',c:'Fortnite',p:13.2,s:63,img:I+'461fb3e7-4600-49c5-a0af-9dde8c2e051b.png'},
+  {id:38,n:'Fortnite V-Bucks 5000-7000',c:'Fortnite',p:34.1,s:27,img:I+'9b337231-9fbd-4fac-9b5c-7dcdd4d3c3d0.png'},
+  // CS2
+  {id:40,n:'CS2 Prime (0-300 Hrs)',c:'CS2',p:19.47,s:119,img:I+'2adddc95-2277-46cc-8ae8-8fcfb3fedc89.png'},
+  {id:41,n:'CS2 Prime (1100-4000 Hrs)',c:'CS2',p:38.5,s:14,img:I+'1f019067-035c-4988-a45f-842b0a09d52b.png',b:'Raro'},
+  {id:42,n:'CS2 Account 5000+ Hours',c:'CS2',p:4.95,s:20,img:I+'e8508413-4a2c-48c1-bcbb-97c995119801.png'},
+  {id:43,n:'CS2 Account 10000+ Hours',c:'CS2',p:9.9,s:17,img:I+'e60a1a3d-25a1-4f5c-9659-586424822877.png'},
+  {id:44,n:'CS2 Prime NFA Account',c:'CS2',p:2.97,s:49,img:I+'3f341745-41ff-4d2d-8204-0fda79bac383.png'},
+  // VALORANT
+  {id:50,n:'Valorant EU Lv1-20 [Ranked]',c:'Valorant',p:7.7,s:27,img:I+'a01c93a6-4e8c-4408-b567-3245fc673418.png'},
+  {id:51,n:'Valorant EU Lv1-20 [Knife+Skins]',c:'Valorant',p:15.07,s:64,img:I+'3c2ab287-7371-4447-b14d-064992ce8201.png'},
+  {id:52,n:'Valorant EU Lv20-40 [Knife+Skins]',c:'Valorant',p:18.7,s:30,img:I+'65636e46-9f13-4e3a-b8e5-26802bd6d3b5.png'},
+  {id:53,n:'Valorant EU Lv40-100 [Knife+Skins]',c:'Valorant',p:33.55,s:28,img:I+'695cc259-edfa-48f5-82bf-d4a77f5047f1.png'},
+  {id:54,n:'Valorant EU Lv50-200 [Knife+Skins]',c:'Valorant',p:49.5,s:29,img:I+'6cee04a4-7c32-4f97-8cfe-5ca9b83df9e6.png',b:'Hot',bt:'hot'},
+  {id:55,n:'Valorant EU Lv100-300 [30k-55kVP]',c:'Valorant',p:66.0,s:20,img:I+'dd4833fe-b95e-4e8e-a280-7112ce8fb4d5.png',b:'Raro'},
+  // APEX
+  {id:60,n:'Apex Lv20-100 [Ranked]',c:'Apex',p:8.91,s:27,img:I+'badf0fe3-4798-4a5c-9752-b74d1b4dc45e.png'},
+  {id:61,n:'Apex Lv100-300 [Ranked]',c:'Apex',p:27.5,s:22,img:I+'f1ed4752-ad16-4c2a-81ca-ba0db562e544.png'},
+  {id:62,n:'Apex Lv300-500 [Ranked]',c:'Apex',p:39.6,s:3,img:I+'d78310c6-ebe9-4f4f-8209-fb208df4a3d4.png',b:'Raro'},
+  {id:63,n:'Apex 50-100 Level [Ranked]',c:'Apex',p:34.1,s:25,img:I+'dd192445-6d8f-4fc8-8974-7bc34c2bd5e4.png'},
+  // ROBLOX
+  {id:70,n:'Roblox 1000-2500 Robux',c:'Roblox',p:6.49,s:428,img:I+'6655a19a-4d86-4178-80b1-9afe0d23897b.png'},
+  {id:71,n:'Roblox 2500-5000 Robux',c:'Roblox',p:9.9,s:323,img:I+'91f1f011-5d29-48ac-974b-e127187e4084.png'},
+  {id:72,n:'Roblox 5000-10000 Robux',c:'Roblox',p:16.5,s:197,img:I+'ef9b1601-7e00-4310-b71f-fb06abf5eb86.png'},
+  {id:73,n:'Roblox 10000-15000 Robux',c:'Roblox',p:23.1,s:142,img:I+'d67cd147-075e-4405-b807-6e3acd59f831.png',b:'Popular'},
+  {id:74,n:'Roblox 15000-25000 Robux',c:'Roblox',p:29.15,s:98,img:I+'6da611d6-47af-4cd8-b778-0e568511efcd.png'},
+  {id:75,n:'Roblox 25000-50000 Robux',c:'Roblox',p:40.7,s:40,img:I+'c5e0e147-2c6e-498d-b847-20e3fd2fe2fb.png',b:'Hot',bt:'hot'},
+  // SPOOFERS
+  {id:80,n:'FiveM Spoofer 1 Day',c:'Spoofers',p:3.63,s:174,img:I+'c510346b-8cda-4a41-9689-359d9c7ae161.png'},
+  {id:81,n:'FiveM Spoofer 7 Days',c:'Spoofers',p:9.35,s:112,img:I+'6f77c270-6791-470b-af5c-8abfef616711.png'},
+  {id:82,n:'FiveM Spoofer 30 Days',c:'Spoofers',p:18.59,s:77,img:I+'a891b1b3-2cea-4be8-82f6-422be59643f3.png'},
+  {id:83,n:'FiveM Spoofer Lifetime',c:'Spoofers',p:43.98,s:25,img:I+'4f0cd6d0-eecb-47ab-a2da-0d1eadb8762a.png',b:'Popular'},
+  {id:84,n:'Temp Spoofer [All Games] 1 Day',c:'Spoofers',p:1.76,s:56,img:I+'1cfcdaeb-11bf-4f07-b89d-e77e16d8e0e8.png'},
+  {id:85,n:'Temp Spoofer [All Games] 7 Days',c:'Spoofers',p:7.7,s:60,img:I+'b6c1d1cc-ba28-4107-a48c-29ac5a576fb5.png'},
+  {id:86,n:'Temp Spoofer [All Games] 31 Days',c:'Spoofers',p:14.96,s:50,img:I+'575e5bee-5260-4fed-b437-924f28b420c2.png'},
+  {id:87,n:'Temp Spoofer [All Games] Lifetime',c:'Spoofers',p:28.6,s:14,img:I+'35387d4a-d58b-4948-8d57-52b751c91a45.png'},
+  {id:88,n:'Permanent Spoofer [All] x1',c:'Spoofers',p:9.9,s:74,img:I+'3eac9911-f207-479b-8b14-a19cea8deb79.png'},
+  {id:89,n:'Permanent Spoofer [All] Lifetime',c:'Spoofers',p:21.78,s:14,img:I+'1714b581-7b34-432d-9d87-8152f8030608.png'},
+  // STREAMING
+  {id:90,n:'Netflix Lifetime',c:'Streaming',p:0.11,s:1796,img:I+'bc41ad8f-a5b3-4bad-9a98-472052a1cd41.png'},
+  {id:91,n:'Netflix Generator',c:'Streaming',p:22.0,s:30,img:I+'ea2a9723-afdd-4c2a-ae73-1fed2e26f1f7.png'},
+  {id:92,n:'Disney+ Lifetime',c:'Streaming',p:0.13,s:1701,img:I+'e84aee2c-068f-449a-82c2-1be65504e32c.png'},
+  {id:93,n:'HBO Max Lifetime',c:'Streaming',p:0.33,s:359,img:I+'cbe0e160-fc24-4802-adce-52c3cb36c147.png'},
+  {id:94,n:'Spotify Lifetime Key',c:'Streaming',p:12.43,s:426,img:I+'34af1fc5-1d1e-4dcf-8f32-fe730e7521c8.png',b:'Popular'},
+  {id:95,n:'Spotify Lifetime Account',c:'Streaming',p:4.18,s:65,img:I+'e63bd858-d720-4842-b1fa-b409da32fcae.png'},
+  {id:96,n:'Paramount+ USA',c:'Streaming',p:0.66,s:34,img:I+'994d7351-07db-4725-887c-f225ab6ee4c2.png'},
+  {id:97,n:'Prime Video Lifetime',c:'Streaming',p:1.54,s:17,img:I+'385a71fa-f510-4228-a882-6bfddc91d225.png'},
+  {id:98,n:'Crunchyroll Mega Fan Lifetime',c:'Streaming',p:0.22,s:73,img:I+'e0365594-5e33-41d8-bb3a-3431fabfaf36.png'},
+  {id:99,n:'NBA Lifetime',c:'Streaming',p:0.55,s:134,img:I+'b33e9204-36fc-47aa-8cf9-aa1f40542d75.png'},
+  {id:100,n:'UFC Lifetime Account',c:'Streaming',p:0.99,s:91,img:I+'cbfdf2f0-83da-4224-88e4-1d1e2308e095.png'},
+  // VPN
+  {id:110,n:'NordVPN Lifetime',c:'VPN',p:0.9,s:21,img:I+'afacad40-3eae-464d-949f-b7e8c40a7fc3.png'},
+  {id:113,n:'HotSpot Shield VPN 1 Year',c:'VPN',p:2.2,s:12,img:I+'ea72907c-dedc-4738-8c6d-3085fddaba86.png'},
+  {id:114,n:'CyberGhost VPN 1 Year',c:'VPN',p:0.77,s:175,img:I+'578a83f1-1472-4788-bf4a-007887ee2ef2.png'},
+  {id:115,n:'Pure VPN',c:'VPN',p:1.1,s:27,img:I+'d91aad54-f913-4ce8-8587-71c1a6c3bc5c.png'},
+  {id:116,n:'IP Vanish VPN 1 Year',c:'VPN',p:0.22,s:191,img:I+'154fabcf-39e3-46df-beb2-224fe01df0ff.png'},
+  {id:117,n:'TunnelBear VPN',c:'VPN',p:0.4,s:1397,img:I+'ff111087-ac39-49ae-a29b-6de36a4f3fa6.png'},
+  {id:118,n:'VPN Generator [LIFETIME]',c:'VPN',p:39.6,s:52,img:I+'1384da74-1f1d-4584-9b46-88beabeeb0fd.png'},
+  // SOCIAL
+  {id:120,n:'Instagram 1k+ Followers',c:'Social',p:7.48,s:131,img:I+'17a099a6-cc6c-428a-9826-a91e49498cde.png'},
+  {id:121,n:'Instagram 5k+ Followers',c:'Social',p:18.7,s:42,img:I+'46296022-52ce-44fc-8136-a4e848373020.png'},
+  {id:122,n:'TikTok 1k+ Followers',c:'Social',p:8.14,s:12,img:I+'3af85a4e-0a7c-41cb-a67e-6d821d82291f.png'},
+  {id:123,n:'TikTok 10k+ Followers',c:'Social',p:39.05,s:0,img:I+'11f50c29-d78c-4e48-b337-f10676d28a87.png'},
+  {id:124,n:'YouTube Lifetime Account',c:'Social',p:2.75,s:64,img:I+'a8ed2072-6b4a-41c4-bc28-af0658bfa9ea.png'},
+  {id:125,n:'Twitch FA Fresh',c:'Social',p:0.07,s:369,img:I+'bde90c60-099c-4b04-806f-ca3ffd747fad.png'},
+  {id:126,n:'Twitch 2000+ Followers',c:'Social',p:3.85,s:2,img:I+'fc27f998-0561-4118-9e54-a432e4353fb8.png'},
+  {id:127,n:'Twitch 5000+ Followers',c:'Social',p:10.45,s:4,img:I+'af8c09a3-502f-412e-a2ed-3c61685ae096.png'},
+  {id:128,n:'Twitch 10k+ Followers',c:'Social',p:20.9,s:14,img:I+'6319f197-0bbf-4ecb-b9e4-7d7ab974fe3e.png'},
+  {id:129,n:'Twitch 20k+ Followers',c:'Social',p:43.45,s:13,img:I+'00545e43-2790-4d2d-8fdd-ee1a47e07407.png'},
+  {id:130,n:'Twitch 40k+ Followers',c:'Social',p:66.0,s:6,img:I+'fe531b61-0eac-44cd-9faf-9364fb265b18.png'},
+  // CONTAS / JOGOS
+  {id:140,n:'Minecraft Full Access',c:'Contas',p:2.97,s:173,img:I+'87c5a37a-f6f7-4848-9e2c-9385e3208c17.png'},
+  {id:141,n:'GTA 5 Account',c:'Contas',p:15.18,s:11,img:I+'4ccab6e3-8bff-41a2-a026-21b561ac3643.png'},
+  {id:142,n:'Rust NFA Account',c:'Contas',p:3.63,s:141,img:I+'9110a9c6-a757-4003-8287-a6842e5e5fdb.png'},
+  {id:143,n:'Rust Account',c:'Contas',p:13.09,s:42,img:I+'71b2e838-d374-40cb-b39f-02b63e65e272.png'},
+  {id:144,n:'Black Ops 6 [0-100 Level]',c:'Contas',p:17.6,s:66,img:I+'aff7662a-8c69-4c0e-971c-041941b22390.png'},
+  {id:145,n:'Black Ops 6 [100-200 Level + RARE]',c:'Contas',p:31.9,s:15,img:I+'2c3f16f5-886a-4062-97b9-e988257e8aee.png',b:'Raro'},
+  {id:146,n:'Black Ops 7 Account',c:'Contas',p:39.6,s:5,img:I+'beb51622-c839-4df5-9d6d-8a1034f69bb4.png',b:'Novo',bt:'new'},
+  {id:147,n:'EA FC 26',c:'Contas',p:32.45,s:12,img:I+'d97c2d1c-0726-468d-aabe-23268f4804db.png',b:'Novo',bt:'new'},
+  {id:148,n:'R6 Siege 10-50 Level',c:'Contas',p:7.7,s:10,img:I+'8a1333e3-b1c7-47bd-8a3c-5d42137e0f1f.png'},
+  {id:149,n:'R6 Siege 100-300 Level [100+ Skins]',c:'Contas',p:42.9,s:4,img:I+'2043ab4c-d0f6-4125-a47f-14ab4466675c.png',b:'Raro'},
+  {id:150,n:'Escape From Tarkov Account',c:'Contas',p:25.3,s:10,img:I+'e05f0b1e-5ace-4c6c-ad55-f9cf23f0569c.png'},
+  {id:151,n:'RDR2 Social Club Account',c:'Contas',p:8.14,s:26,img:I+'0fe3681d-3d6c-47e9-9b55-a25cd3c32a82.png'},
+  {id:152,n:'Clash Royale 1k-2.5k Trophies',c:'Contas',p:5.5,s:126,img:I+'327b8795-aa51-4adc-8ee4-0ba6b47d9193.png'},
+  {id:153,n:'Clash Royale 2.5k-5k Trophies',c:'Contas',p:9.9,s:60,img:I+'9857438d-abcc-4b7c-b16b-8d17b89e42e9.png'},
+  {id:154,n:'Clash Royale 5k-7k Trophies',c:'Contas',p:16.5,s:28,img:I+'e6e4494d-5c99-4f78-8324-1aea9bebfaa4.png'},
+  {id:155,n:'Clash Royale 7k-10k Trophies',c:'Contas',p:26.95,s:15,img:I+'557ac80a-6f43-4283-a019-79d5096e6631.png'},
+  {id:156,n:'Clash Royale 10k-12k Trophies',c:'Contas',p:40.7,s:7,img:I+'a81f0da8-70e0-4f0e-baef-6ee292c1694b.png',b:'Raro'},
+  {id:157,n:'ChatGPT+ Account',c:'Contas',p:1.76,s:30,img:I+'1817fe28-4cb4-4098-a88a-198bdb2c984b.png'},
+  // TOOLS
+  {id:160,n:'Rockstar Tool',c:'Tools',p:33.0,s:28,img:I+'b9663dd9-d44e-4de7-a895-41c895dd7b4f.png'},
+  {id:161,n:'Rockstar Activation Codes [Auto]',c:'Tools',p:0.15,s:3489,img:I+'ee87f665-4049-4621-8c9c-907af06ac12f.png',b:'Popular'},
+  {id:162,n:'Rockstar Activation Code Method',c:'Tools',p:220.0,s:90,img:I+'b4c67dc3-f94f-44c3-8a5c-c1419ba7cd94.png'},
+  {id:163,n:'Lusive Ultimate Software 1 Day',c:'Tools',p:2.2,s:45,img:I+'6d318d0e-680f-4307-948d-153363dc6aaa.png'},
+  {id:164,n:'Lusive Ultimate Software 1 Week',c:'Tools',p:7.37,s:49,img:I+'8344399e-c930-422f-a6a1-1780e1a86bda.png'},
+  {id:165,n:'Lusive Ultimate Software 1 Month',c:'Tools',p:18.7,s:50,img:I+'50c0d94d-f6bf-4088-ae2d-c357a6aa8aa3.png'},
+  {id:166,n:'Lusive Ultimate Software Lifetime',c:'Tools',p:29.7,s:46,img:I+'25123b76-f9e4-4353-bf09-8b401293a44b.png',b:'Popular'},
+  {id:167,n:'Accounts Generator Week',c:'Tools',p:34.1,s:43,img:I+'437f4e1a-f7cf-4ac1-a0f2-b9c94c755ef4.png'},
+  {id:168,n:'Accounts Generator Month',c:'Tools',p:55.0,s:46,img:I+'15292a50-bddf-454f-b8de-05ce15e05c61.png'},
+  {id:169,n:'Accounts Generator Lifetime',c:'Tools',p:88.0,s:30,img:I+'41b0e7cf-0e7a-444d-9c62-73e14994a4f1.png'},
+  {id:170,n:'Epic Games Email Changer',c:'Tools',p:9.9,s:13,img:I+'b1215487-149c-4d86-8b73-1620a3301d8c.png'},
+  {id:171,n:'FA Steam Accounts',c:'Tools',p:0.02,s:24293,img:I+'8d409a93-be6d-4710-abbd-b65f2f63fa08.png'},
+  {id:172,n:'Steam Generator [LIFETIME]',c:'Tools',p:22.0,s:31,img:I+'22c91ed1-bff7-4438-97ab-8335e595b656.png'},
+  {id:173,n:'ChatGPT+ Free Method',c:'Tools',p:55.0,s:35,img:I+'3d5bbaa3-55e7-4691-ac65-61e7fce5728f.png'},
+  {id:174,n:'ChatGPT+ Generator',c:'Tools',p:55.0,s:56,img:I+'dc9d3459-17ff-4465-a136-eed03158ddbd.png'},
+  {id:175,n:'FREE Steam Games',c:'Tools',p:55.0,s:57,img:I+'b72df386-d05b-4967-a15d-604a0eb1d753.png'},
+  // OUTROS
+  {id:180,n:'Duolingo Lifetime',c:'Outros',p:0.44,s:211,img:I+'7581948c-b982-4fc7-ba10-44e875b333e3.png'},
+  {id:181,n:'CapCut Pro Lifetime',c:'Outros',p:0.44,s:165,img:I+'862d40ee-7d3b-42f2-b43b-d78442699c07.png'},
+  {id:182,n:'Rambler Email Accounts',c:'Outros',p:0.04,s:1311,img:I+'0a11a3d8-204b-4485-9d38-7cbe09ac60d2.png'},
+  {id:183,n:'0.50$ NFA Accounts',c:'Outros',p:44.0,s:91,img:I+'a3b929dc-cd33-46bb-8751-1838809f9558.png'},
+];
+
+let cart=[],selectedPay=null,activeFilter='Todos',searchQ='';
+const CATS=['Todos',...[...new Set(PRODS.map(p=>p.c))]];
+
+
+
+function getBg(cat){
+  const map={
+    'Discord':'#1a1040','Fortnite':'#0d1f3c','CS2':'#1a0d0d',
+    'Valorant':'#1f0d12','Apex':'#1a0d20','Roblox':'#0d1a0d',
+    'Spoofers':'#0d1520','Streaming':'#200d0d','VPN':'#0d1a20',
+    'Social':'#1a0d1a','Contas':'#151520','Tools':'#1a1505','Outros':'#10101a'
+  };
+  return map[cat]||'#12132a';
+}
+function getEmoji(cat,name){
+  const n=(name||'').toLowerCase();
+  if(n.includes('netflix'))return'🔴';
+  if(n.includes('spotify'))return'🎵';
+  if(n.includes('disney'))return'✨';
+  if(n.includes('hbo'))return'📺';
+  if(n.includes('prime video')||n.includes('amazon'))return'📦';
+  if(n.includes('paramount'))return'⭐';
+  if(n.includes('crunchyroll'))return'🍥';
+  if(n.includes('youtube'))return'▶️';
+  if(n.includes('nba'))return'🏀';
+  if(n.includes('ufc'))return'🥊';
+  if(n.includes('nordvpn')||n.includes('nord vpn'))return'🔵';
+  if(n.includes('cyberghost'))return'👻';
+  if(n.includes('tunnelbear'))return'🐻';
+  if(n.includes('mullvad'))return'🔐';
+  if(n.includes('hotspot')||n.includes('purevpn')||n.includes('ip vanish')||n.includes('vpn'))return'🔒';
+  if(n.includes('instagram'))return'📸';
+  if(n.includes('tiktok'))return'🎵';
+  if(n.includes('twitch'))return'💜';
+  if(n.includes('discord'))return'💬';
+  if(n.includes('fortnite')||n.includes('v-bucks')||n.includes('skins'))return'🎯';
+  if(n.includes('cs2')||n.includes('counter'))return'🔫';
+  if(n.includes('valorant'))return'⚔️';
+  if(n.includes('apex'))return'🦾';
+  if(n.includes('roblox')||n.includes('robux'))return'🧱';
+  if(n.includes('spoofer'))return'🛡️';
+  if(n.includes('minecraft'))return'⛏️';
+  if(n.includes('gta'))return'🚗';
+  if(n.includes('rust'))return'🔧';
+  if(n.includes('black ops')||n.includes('bo6')||n.includes('bo7'))return'💣';
+  if(n.includes('r6')||n.includes('rainbow'))return'🪃';
+  if(n.includes('tarkov'))return'🎒';
+  if(n.includes('rdr2')||n.includes('rockstar'))return'🤠';
+  if(n.includes('clash royale'))return'👑';
+  if(n.includes('ea fc'))return'⚽';
+  if(n.includes('dayz'))return'🧟';
+  if(n.includes('chatgpt'))return'🤖';
+  if(n.includes('steam'))return'🎮';
+  if(n.includes('epic games'))return'🕹️';
+  if(n.includes('generator'))return'⚡';
+  if(n.includes('duolingo'))return'🦉';
+  if(n.includes('capcut'))return'🎬';
+  if(n.includes('account'))return'👤';
+  if(n.includes('method'))return'📋';
+  const map={'Discord':'💬','Fortnite':'🎯','CS2':'🔫','Valorant':'⚔️','Apex':'🦾','Roblox':'🧱','Spoofers':'🛡️','Streaming':'🎬','VPN':'🔒','Social':'📱','Contas':'👤','Tools':'🔧','Outros':'📦'};
+  return map[cat]||'🎁';
+}
+function renderFilters(){
+  document.getElementById('filters').innerHTML=CATS.map(c=>`<button class="filter-btn${c===activeFilter?' active':''}" onclick="setFilter('${c}')">${c}</button>`).join('');
+}
+function setFilter(c){activeFilter=c;renderFilters();renderProducts();}
+
+function renderProducts(){
+  const q=searchQ.toLowerCase();
+  let list=PRODS.filter(p=>(activeFilter==='Todos'||p.c===activeFilter)&&(!q||p.n.toLowerCase().includes(q)||p.c.toLowerCase().includes(q)));
+  document.getElementById('subText').textContent=`${list.length} de ${PRODS.length} produtos · Clica para adicionar ao carrinho`;
+  const grid=document.getElementById('productsGrid');
+  if(!list.length){grid.innerHTML='<div class="no-results">Nenhum produto encontrado.</div>';return;}
+  grid.innerHTML=list.map((p,i)=>`
+    <div class="product-card" style="animation-delay:${Math.min(i,15)*0.03}s" onclick="${p.s===0?'':('addToCart('+p.id+')')}">
+      <div class="product-img" style="background:${getBg(p.c)}">
+        <span style="font-size:44px;position:relative;z-index:1">${getEmoji(p.c,p.n)}</span>
+        ${p.b?`<div class="badge ${p.bt||''}">${p.b}</div>`:''}
+      </div>
+      <div class="product-body">
+        <div class="product-cat">${p.c}</div>
+        <div class="product-name">${p.n}</div>
+        <div class="product-stock">${p.s===0?'⚠️ Sem stock':p.s>500?'✅ Em stock':p.s>50?'⚡ '+p.s+' em stock':'🔥 Últimas '+p.s+' unidades'}</div>
+        <div class="product-footer">
+          <div class="product-price">€${p.p.toFixed(2)}</div>
+          <button class="btn-add"${p.s===0?' disabled style="opacity:.35;cursor:not-allowed"':''}>${p.s===0?'Esgotado':'+ Adicionar'}</button>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+document.getElementById('searchInput').addEventListener('input',function(){searchQ=this.value;renderProducts();});
+
+function addToCart(id){
+  const p=PRODS.find(x=>x.id===id);if(!p||p.s===0)return;
+  cart.push({...p,uid:Date.now()+Math.random()});
+  updateCart();showToast('✅ '+p.n.substring(0,32)+' adicionado!');
+}
+function removeFromCart(uid){cart=cart.filter(x=>x.uid!==uid);updateCart();}
+function updateCart(){
+  document.getElementById('cartCount').textContent=cart.length;
+  const tot=cart.reduce((s,x)=>s+x.p,0);
+  document.getElementById('cartTotal').textContent='€'+tot.toFixed(2);
+  const c=document.getElementById('cartItems');
+  if(!cart.length){c.innerHTML='<div class="cart-empty">O teu carrinho está vazio.</div>';return;}
+  c.innerHTML=cart.map(x=>`
+    <div class="cart-item">
+      <div class="cart-item-img" style="display:flex;align-items:center;justify-content:center;font-size:22px;border-radius:8px;background:var(--card)">${getEmoji(x.c,x.n)}</div>
+      <div class="cart-item-info">
+        <div class="cart-item-name">${x.n}</div>
+        <div class="cart-item-price">€${x.p.toFixed(2)}</div>
+      </div>
+      <button class="btn-remove" onclick="removeFromCart(${x.uid})">×</button>
+    </div>
+  `).join('');
+}
+function openCart(){document.getElementById('cartOverlay').classList.add('open');document.getElementById('cartSidebar').classList.add('open');}
+function closeCart(){document.getElementById('cartOverlay').classList.remove('open');document.getElementById('cartSidebar').classList.remove('open');}
+function openCheckout(){
+  if(!cart.length){showToast('Adiciona produtos primeiro!');return;}
+  closeCart();goStep(1);document.getElementById('checkoutModal').classList.add('open');
+}
+function closeCheckout(){document.getElementById('checkoutModal').classList.remove('open');}
+function goStep(n){
+  if(n===2){
+    if(!document.getElementById('iName').value.trim()||!document.getElementById('iEmail').value.trim()||!document.getElementById('iDiscord').value.trim()){showToast('Preenche todos os campos!');return;}
+    const tot=cart.reduce((s,x)=>s+x.p,0);
+    document.getElementById('modalSummary').innerHTML=`<h4>Resumo do pedido</h4>${cart.map(x=>`<div class="summary-item"><span>${x.n}</span><span>€${x.p.toFixed(2)}</span></div>`).join('')}<div class="summary-item total"><span>Total a pagar</span><span>€${tot.toFixed(2)}</span></div>`;
+  }
+  if(n===3){
+    if(!selectedPay){showToast('Escolhe um método de pagamento!');return;}
+    document.getElementById('orderCode').textContent='SC-'+Math.random().toString(36).substring(2,8).toUpperCase();
+    cart=[];updateCart();
+  }
+  [1,2,3].forEach(i=>{
+    document.getElementById('step'+i).classList.toggle('active',i===n);
+    const si=document.getElementById('si'+i);
+    si.classList.remove('active','done');
+    if(i===n)si.classList.add('active');
+    if(i<n)si.classList.add('done');
+  });
+}
+function selectPay(m){
+  selectedPay=m;
+  ['crypto','paypal','mbway','mb'].forEach(x=>{
+    document.getElementById('pay-'+x).classList.toggle('selected',x===m);
+    document.getElementById('details-'+x).classList.toggle('show',x===m);
+  });
+}
+let tt;
+function showToast(msg){
+  const t=document.getElementById('toast');
+  document.getElementById('toastMsg').textContent=msg;
+  t.classList.add('show');clearTimeout(tt);
+  tt=setTimeout(()=>t.classList.remove('show'),2600);
+}
+
+renderFilters();renderProducts();
+</script>
+</body>
+</html>
